@@ -22,6 +22,7 @@ corrects, if needed) the slugs generated here.
 import logging
 from collections import defaultdict
 
+from nba_api.stats.endpoints import playerindex
 from nba_api.stats.static import players as nba_players
 from nba_api.stats.static import teams as nba_teams
 from sqlalchemy.orm import Session
@@ -55,15 +56,34 @@ def upsert_teams(db: Session) -> None:
     logger.info("Teams upserted.")
 
 
+def _get_from_years() -> dict[int, int]:
+    """Fetch FROM_YEAR (first season) for every player via PlayerIndex endpoint.
+    Returns a dict of {nba_api_id: from_year}. Falls back to 9999 for any
+    player not found so they sort to the end rather than crashing.
+    """
+    logger.info("Fetching FROM_YEAR data from PlayerIndex endpoint...")
+    try:
+        df = playerindex.PlayerIndex(league_id="00", historical_nullable=1).get_data_frames()[0]
+        logger.info("PlayerIndex returned %d players", len(df))
+        return dict(zip(df["PERSON_ID"], df["FROM_YEAR"].fillna(9999).astype(int)))
+    except Exception as e:
+        logger.warning("Could not fetch PlayerIndex data: %s. Falling back to id sort.", e)
+        return {}
+
+
 def upsert_players(db: Session) -> None:
     players_data = nba_players.get_players()
     logger.info("Fetched %d players from nba_api", len(players_data))
 
-    # Sort by nba_api id ascending as a (rough) proxy for chronological order,
-    # so that when two players share a base slug, the earlier-id player tends
-    # to land on 01. This is only a best guess -- the scraper verifies/fixes
-    # it against the actual basketball-reference page.
-    players_data = sorted(players_data, key=lambda p: p["id"])
+    # Sort by FROM_YEAR (first season) ascending so that when two players share
+    # a base slug, the earlier player gets 01 — matching basketball-reference's
+    # own slug assignment order. Falls back to nba_api_id sort if the endpoint
+    # call fails.
+    from_years = _get_from_years()
+    players_data = sorted(
+        players_data,
+        key=lambda p: (from_years.get(p["id"], 9999), p["id"])
+    )
 
     # Tracks how many players we've already assigned to each base slug
     # (last5 + first2) so we can increment the occurrence number.

@@ -11,6 +11,7 @@ Schema recap:
 """
 
 from datetime import datetime
+from typing import Optional
 
 from sqlalchemy import (
     DateTime,
@@ -101,8 +102,7 @@ class PlayerTeamDecadeStats(Base):
     player_id: Mapped[int] = mapped_column(ForeignKey("players.player_id"), index=True)
     team_id: Mapped[int] = mapped_column(ForeignKey("teams.team_id"), index=True)
     decade: Mapped[int] = mapped_column(Integer, index=True)
-    positions: Mapped[str] = mapped_column(String(50), default="")
-    awards: Mapped[str] = mapped_column(String(200), default="")
+    awards: Mapped[str] = mapped_column(String(200), default="")  # combined awards across these seasons e.g. "AS | AS,NBA1"
 
     games_played: Mapped[int] = mapped_column(Integer, default=0)
 
@@ -122,7 +122,7 @@ class Lineup(Base):
     __tablename__ = "lineups"
 
     lineup_id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    name: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     picks: Mapped[list["LineupPick"]] = relationship(back_populates="lineup")
