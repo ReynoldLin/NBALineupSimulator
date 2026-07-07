@@ -6,6 +6,7 @@ tables. Schemas define what the frontend sees; models define what SQLite stores.
 """
 
 from pydantic import BaseModel
+from typing import Optional
 
 
 # ---------------------------------------------------------------------------
@@ -30,6 +31,7 @@ class PlayerSummary(BaseModel):
     fg3_pct: float
     ft_pct: float
     awards: str
+    headshot_url: Optional[str] = None
 
     class Config:
         from_attributes = True

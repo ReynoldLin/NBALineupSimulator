@@ -45,6 +45,7 @@ class Player(Base):
     nba_api_id: Mapped[int] = mapped_column(Integer, unique=True, index=True)
     is_active: Mapped[bool] = mapped_column(default=False)
     positions: Mapped[str] = mapped_column(String(50), default="")  # distinct positions across career, e.g. "PG, SG"
+    headshot_url: Mapped[Optional[str]] = mapped_column(String(200), nullable=True)
 
     season_stats: Mapped[list["PlayerSeasonStats"]] = relationship(back_populates="player")
 

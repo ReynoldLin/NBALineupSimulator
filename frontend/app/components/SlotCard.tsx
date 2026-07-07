@@ -32,7 +32,7 @@ export default function SlotCard({
         borderColor: isEmpty && isEligible ? POSITION_COLORS[position] : undefined,
         }}
         className={`
-        relative rounded-lg border h-24 flex flex-col overflow-hidden
+        relative rounded-lg border h-60 flex flex-col overflow-hidden
         transition-all duration-150
         ${isEmpty && !isEligible ? "border-[#E5E5E5] cursor-pointer hover:opacity-80" : ""}
         ${isEmpty && isEligible ? "ring-2 ring-offset-1 cursor-pointer" : ""}
@@ -51,26 +51,36 @@ export default function SlotCard({
         />
       )}
 
-      {/* Position label */}
-        <div className="px-2 pt-2">
-        <span className="text-[10px] font-black tracking-widest" style={{ color: POSITION_COLORS[position] ?? "#AAAAAA" }}>
-            {position}
-        </span>
+      {!isEmpty && (
+        <div className="flex-1 flex items-center justify-center p-2">
+            <img
+              src={player.headshot_url ?? "https://placehold.net/avatar.png"}
+              alt={player.full_name}
+              className="h-3/4 w-auto object-cover object-top"
+            />
         </div>
+      )}
 
       {isEmpty ? (
-        <div className="flex-1 flex items-center justify-center">
-          <span className={`text-[10px] font-mono ${isEligible ? "text-[#111111]" : "text-[#CCCCCC]"}`}>
-            {isEligible ? "PLACE HERE" : "EMPTY"}
+        <div className="flex-1 flex items-end p-2">
+          <span className="text-[10px] font-black tracking-widest"
+            style={{ color: POSITION_COLORS[position] ?? "#AAAAAA" }}>
+            {position}
           </span>
         </div>
       ) : (
-        <div className="flex-1 flex flex-col justify-end p-2">
-          <span className="text-xs text-[#111111] font-bold leading-tight line-clamp-2">
+        <div className="flex-1 flex items-end p-2">
+          <span className="text-[10px] font-black tracking-widest w-8 shrink-0"
+            style={{ color: POSITION_COLORS[position] ?? "#AAAAAA" }}>
+            {position}
+          </span>
+          <span className="text-xs font-bold leading-tight text-center text-black line-clamp-3 flex-1">
             {player.full_name}
           </span>
+          <div className="w-8 shrink-0" /> {/* spacer to balance the position label */}
         </div>
       )}
+
     </div>
   );
 }

@@ -68,6 +68,7 @@ def _get_players_for_combo(
             fg3_pct=stats.fg3_pct,
             ft_pct=stats.ft_pct,
             awards=stats.awards,
+            headshot_url=player.headshot_url
         ))
     return players
 
