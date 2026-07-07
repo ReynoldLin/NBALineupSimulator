@@ -3,6 +3,7 @@
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { Player } from "@/lib/api";
+import { POSITION_COLORS } from "@/lib/positions";
 
 type PlayerRowProps = {
   player: Player;
@@ -49,9 +50,21 @@ export default function PlayerRow({
     >
       {/* Left: position + name */}
       <div className="flex items-center gap-3 min-w-0">
-        <span className="text-[10px] font-mono w-16 shrink-0">
-          {player.positions}
-        </span>
+        <div className="flex items-center shrink-0 w-16">
+            {player.positions.split("/").map((pos, i, arr) => (
+            <span key={pos}>
+                <span
+                    className="text-[10px] font-black"
+                    style={{ color: POSITION_COLORS[pos.trim()] ?? "#AAAAAA" }}
+                >
+                    {pos.trim()}
+                </span>
+                {i < arr.length - 1 && (
+                    <span className="text-[10px] text-[#CCCCCC]">/</span>
+                )}
+            </span>
+            ))}
+        </div>
         <div className="min-w-0">
           <span className="text-sm font-semibold truncate block">
             {player.full_name}
@@ -82,7 +95,7 @@ function Stat({
 }) {
   return (
     <div className={`flex flex-col items-center ${className}`}>
-      <span className="text-[9px] font-bold tracking-wider text-[#AAAAAA]">
+      <span className="text-[9px] font-bold tracking-wider">
         {label}
       </span>
       <span className="text-xs font-mono font-semibold">{value.toFixed(1)}</span>

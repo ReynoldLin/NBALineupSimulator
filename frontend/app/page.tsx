@@ -229,6 +229,7 @@ export default function Home() {
           {currentSpin && (
             <div data-player-area>
               <PlayerList
+                teamId={currentSpin.team_id}
                 teamName={currentSpin.team_name}
                 decadeDisplay={currentSpin.decade_display}
                 players={currentSpin.players}

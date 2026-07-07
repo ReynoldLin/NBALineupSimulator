@@ -2,8 +2,10 @@
 
 import { Player } from "@/lib/api";
 import PlayerRow from "@/app/components/PlayerRow";
+import { teamBg, teamHeaderBg } from "@/lib/teams";
 
 type PlayerListProps = {
+  teamId: number,
   teamName: string;
   decadeDisplay: string;
   players: Player[];
@@ -13,6 +15,7 @@ type PlayerListProps = {
 };
 
 export default function PlayerList({
+  teamId,
   teamName,
   decadeDisplay,
   players,
@@ -22,26 +25,30 @@ export default function PlayerList({
 }: PlayerListProps) {
   return (
     <section>
-      {/* Spin result header */}
-      <div className="flex items-baseline gap-2 mb-3">
-        <span className="text-lg font-bold">{decadeDisplay}</span>
-        <span className="text-lg font-bold">{teamName}</span>
-        <span className="text-xs text-[#AAAAAA] ml-auto font-mono">
-          {players.length} PLAYERS
-        </span>
-      </div>
+        <div className="rounded-xl overflow-hidden border border-[#E5E5E5]">
+        {/* Spin result header */}
+        <div className="flex items-baseline gap-2 p-3" style={{ backgroundColor: teamHeaderBg(teamId) }}>
+            <span className="text-lg text-[#EEEEEE] font-bold">{decadeDisplay}</span>
+            <span className="text-lg text-[#EEEEEE] font-bold">{teamName}</span>
+            <span className="text-xs text-[#EEEEEE] ml-auto font-mono">
+            {players.length} PLAYERS
+            </span>
+        </div>
 
-      {/* Player rows */}
-      <div className="space-y-0.5">
-        {players.map((player) => (
-          <PlayerRow
-            key={player.player_id}
-            player={player}
-            isSelected={selectedPlayer?.player_id === player.player_id}
-            isPlaced={placedPlayerIds.has(player.player_id)}
-            onClick={() => onPlayerClick(player)}
-          />
-        ))}
+        {/* Player rows */}
+        <div className="rounded-b-lg p-1" style={{ backgroundColor: teamBg(teamId) }}>
+            <div className="space-y-0.5">
+                {players.map((player) => (
+                <PlayerRow
+                    key={player.player_id}
+                    player={player}
+                    isSelected={selectedPlayer?.player_id === player.player_id}
+                    isPlaced={placedPlayerIds.has(player.player_id)}
+                    onClick={() => onPlayerClick(player)}
+                />
+                ))}
+            </div>
+        </div>
       </div>
     </section>
   );

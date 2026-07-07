@@ -2,6 +2,7 @@
 
 import { useDroppable } from "@dnd-kit/core";
 import { Player } from "@/lib/api";
+import { POSITION_COLORS, positionBg, positionFilledBg } from "@/lib/positions";
 
 type SlotCardProps = {
   id: string;           // e.g. "starter-PG"
@@ -26,23 +27,17 @@ export default function SlotCard({
     <div
       ref={setNodeRef}
       onClick={onClick}
-      className={`
+      style={{
+        backgroundColor: isEmpty ? positionBg(position) : positionFilledBg(position),
+        borderColor: isEmpty && isEligible ? POSITION_COLORS[position] : undefined,
+        }}
+        className={`
         relative rounded-lg border h-24 flex flex-col overflow-hidden
         transition-all duration-150
-        ${isEmpty ? "cursor-pointer" : "cursor-default"}
-        ${isEmpty && !isEligible
-          ? "border-[#E5E5E5] bg-[#F5F5F5]"
-          : ""}
-        ${isEmpty && isEligible
-          ? "border-[#111111] bg-white ring-2 ring-[#111111] ring-offset-1 cursor-pointer"
-          : ""}
-        ${!isEmpty
-          ? "border-[#111111] bg-[#111111] text-white"
-          : ""}
-        ${isOver && isEligible
-          ? "bg-[#222222]"
-          : ""}
-      `}
+        ${isEmpty && !isEligible ? "border-[#E5E5E5] cursor-pointer hover:opacity-80" : ""}
+        ${isEmpty && isEligible ? "ring-2 ring-offset-1 cursor-pointer" : ""}
+        ${!isEmpty ? "border-transparent text-white" : ""}
+        `}
     >
       {/* Diagonal stripe texture on empty non-eligible slots */}
       {isEmpty && !isEligible && (
@@ -57,9 +52,11 @@ export default function SlotCard({
       )}
 
       {/* Position label */}
-      <div className={`px-2 pt-2 ${isEmpty ? (isEligible ? "text-[#111111]" : "text-[#AAAAAA]") : "text-[#D4A843]"}`}>
-        <span className="text-[10px] font-black tracking-widest">{position}</span>
-      </div>
+        <div className="px-2 pt-2">
+        <span className="text-[10px] font-black tracking-widest" style={{ color: POSITION_COLORS[position] ?? "#AAAAAA" }}>
+            {position}
+        </span>
+        </div>
 
       {isEmpty ? (
         <div className="flex-1 flex items-center justify-center">
@@ -69,11 +66,8 @@ export default function SlotCard({
         </div>
       ) : (
         <div className="flex-1 flex flex-col justify-end p-2">
-          <span className="text-xs font-bold leading-tight line-clamp-2">
+          <span className="text-xs text-[#111111] font-bold leading-tight line-clamp-2">
             {player.full_name}
-          </span>
-          <span className="text-[10px] font-mono text-[#D4A843] mt-0.5">
-            {player.pts_per_game.toFixed(1)} PPG
           </span>
         </div>
       )}
