@@ -80,9 +80,9 @@ function getEligibleSlots(
 ): Set<SlotKey> {
   if (!selectedPlayer) return new Set();
 
-  // Parse positions from the player e.g. "PG, SG" -> ["PG", "SG"]
+  // Parse positions from the player e.g. "PG/SG" -> ["PG", "SG"]
   const playerPositions = selectedPlayer.positions
-    .split(",")
+    .split("/")
     .map((p) => p.trim())
     .filter(Boolean);
 

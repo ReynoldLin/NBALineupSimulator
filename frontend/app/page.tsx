@@ -1,15 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import {
-  DndContext,
-  DragEndEvent,
-  DragStartEvent,
-  PointerSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
+import { DndContext } from "@dnd-kit/core";
 
 import { Player, SpinResponse, spin as spinApi } from "@/lib/api";
 import LineupGrid from "@/app/components/LineupGrid";
@@ -57,19 +49,6 @@ export default function Home() {
   const isComplete = filledSlots === 10;
 
   // ---------------------------------------------------------------------------
-  // dnd-kit sensors — pointer for desktop, touch for mobile
-  // ---------------------------------------------------------------------------
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: { distance: 8 },
-    }),
-    useSensor(TouchSensor, {
-      activationConstraint: { delay: 200, tolerance: 8 },
-    })
-  );
-
-  // ---------------------------------------------------------------------------
   // Handlers
   // ---------------------------------------------------------------------------
 
@@ -104,68 +83,35 @@ export default function Home() {
   );
 
   const handleSlotClick = useCallback(
-    (slotKey: SlotKey) => {
-      if (!selectedPlayer) return;
-      if (lineup[slotKey] !== null) return; // slot is filled, block
-
-      // Check position is valid for this slot
+  (slotKey: SlotKey) => {
+    // If a player is selected from the list, place them
+    if (selectedPlayer) {
+      if (lineup[slotKey] !== null) return;
       const slotPosition = slotKey.split("-")[1];
-      const playerPositions = selectedPlayer.positions
-        .split(",")
-        .map((p) => p.trim());
+      const playerPositions = selectedPlayer.positions.split("/").map((p) => p.trim());
       if (!playerPositions.includes(slotPosition)) return;
-
       setLineup((prev) => ({ ...prev, [slotKey]: selectedPlayer }));
       setSelectedPlayer(null);
-    },
-    [selectedPlayer, lineup]
-  );
+      return;
+    }
 
-  // ---------------------------------------------------------------------------
-  // Drag and drop — swap players between slots of the same position
-  // ---------------------------------------------------------------------------
-
-  const handleDragEnd = useCallback(
-    (event: DragEndEvent) => {
-      const { active, over } = event;
-      if (!over) return;
-
-      const draggedPlayer = active.data.current?.player as Player | undefined;
-      if (!draggedPlayer) return;
-
-      const targetSlotKey = over.id as SlotKey;
-      const targetSlotPosition = targetSlotKey.split("-")[1];
-
-      // Only allow drop if player's positions include the target slot position
-      const playerPositions = draggedPlayer.positions
-        .split(",")
-        .map((p) => p.trim());
-      if (!playerPositions.includes(targetSlotPosition)) return;
-
-      // Find which slot the dragged player is currently in
-      const sourceSlotKey = Object.entries(lineup).find(
-        ([, p]) => p?.player_id === draggedPlayer.player_id
-      )?.[0];
-
-      if (!sourceSlotKey) return;
-      if (sourceSlotKey === targetSlotKey) return;
-
-      // Swap the two slots
-      setLineup((prev) => ({
-        ...prev,
-        [sourceSlotKey]: prev[targetSlotKey],
-        [targetSlotKey]: draggedPlayer,
-      }));
-    },
-    [lineup]
-  );
+    // If no player selected and slot is filled, select that slot's player
+    // so they can be moved to another eligible slot
+    if (lineup[slotKey] !== null) {
+      setSelectedPlayer(lineup[slotKey]);
+      setLineup((prev) => ({ ...prev, [slotKey]: null }));
+      return;
+    }
+  },
+  [selectedPlayer, lineup]
+);
 
   // ---------------------------------------------------------------------------
   // Render
   // ---------------------------------------------------------------------------
 
   return (
-    <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+    <DndContext>
       <div
         className="min-h-screen bg-[#FAFAFA] text-[#111111] font-sans"
         onClick={(e) => {
