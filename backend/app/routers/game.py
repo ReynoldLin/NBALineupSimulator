@@ -55,6 +55,8 @@ def _get_players_for_combo(
     for stats, player in rows:
         players.append(PlayerSummary(
             player_id=player.player_id,
+            team_id=stats.team_id,
+            decade=stats.decade,
             full_name=player.full_name,
             positions=player.positions,
             games_played=stats.games_played,

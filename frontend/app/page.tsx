@@ -33,6 +33,7 @@ export default function Home() {
   );
   const [currentSpin, setCurrentSpin] = useState<SpinResponse | null>(null);
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
+  const [selectedSlotKey, setSelectedSlotKey] = useState<SlotKey | null>(null);
   const [respinsLeft, setRespinsLeft] = useState(MAX_RESPINS);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -84,10 +85,12 @@ export default function Home() {
 
   const handleSlotClick = useCallback(
   (slotKey: SlotKey) => {
-    // If a player is selected from the list, place them
+    const slotPosition = slotKey.split("-")[1];
+    const slotPlayer = lineup[slotKey];
+
+    // Case 1: placing a player from the list
     if (selectedPlayer) {
-      if (lineup[slotKey] !== null) return;
-      const slotPosition = slotKey.split("-")[1];
+      if (slotPlayer !== null) return;
       const playerPositions = selectedPlayer.positions.split("/").map((p) => p.trim());
       if (!playerPositions.includes(slotPosition)) return;
       setLineup((prev) => ({ ...prev, [slotKey]: selectedPlayer }));
@@ -95,15 +98,65 @@ export default function Home() {
       return;
     }
 
-    // If no player selected and slot is filled, select that slot's player
-    // so they can be moved to another eligible slot
-    if (lineup[slotKey] !== null) {
-      setSelectedPlayer(lineup[slotKey]);
-      setLineup((prev) => ({ ...prev, [slotKey]: null }));
+    // Case 2: no slot selected yet, click a filled slot to select it
+    if (!selectedSlotKey) {
+      if (slotPlayer === null) return;
+      setSelectedSlotKey(slotKey);
       return;
     }
+
+    // Case 3: slot already selected, click another slot
+    if (selectedSlotKey === slotKey) {
+      // clicked same slot — deselect
+      setSelectedSlotKey(null);
+      return;
+    }
+
+    const selectedSlotPosition = selectedSlotKey.split("-")[1];
+    const selectedSlotPlayer = lineup[selectedSlotKey];
+
+    if (!selectedSlotPlayer) {
+      setSelectedSlotKey(null);
+      return;
+    }
+
+    // Case 3a: target slot is empty — move player there
+    if (slotPlayer === null) {
+      const selectedPlayerPositions = selectedSlotPlayer.positions.split("/").map((p) => p.trim());
+      if (!selectedPlayerPositions.includes(slotPosition)) {
+        setSelectedSlotKey(null);
+        return;
+      }
+      setLineup((prev) => ({
+        ...prev,
+        [slotKey]: selectedSlotPlayer,
+        [selectedSlotKey]: null,
+      }));
+      setSelectedSlotKey(null);
+      return;
+    }
+
+    // Case 3b: target slot is filled — swap if both players are compatible
+    const selectedPlayerPositions = selectedSlotPlayer.positions.split("/").map((p) => p.trim());
+    const targetPlayerPositions = slotPlayer.positions.split("/").map((p) => p.trim());
+
+    const canSwap =
+      selectedPlayerPositions.includes(slotPosition) &&
+      targetPlayerPositions.includes(selectedSlotPosition);
+
+    if (!canSwap) {
+      setSelectedSlotKey(null);
+      return;
+    }
+
+    setLineup((prev) => ({
+      ...prev,
+      [slotKey]: selectedSlotPlayer,
+      [selectedSlotKey]: slotPlayer,
+    }));
+    setSelectedSlotKey(null);
   },
-  [selectedPlayer, lineup]
+  [selectedPlayer, selectedSlotKey, lineup]
 );
 
   // ---------------------------------------------------------------------------
@@ -151,6 +204,7 @@ export default function Home() {
             <LineupGrid
               lineup={lineup}
               selectedPlayer={selectedPlayer}
+              selectedSlotKey={selectedSlotKey}
               onSlotClick={handleSlotClick}
             />
           </div>

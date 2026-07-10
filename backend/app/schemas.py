@@ -18,6 +18,8 @@ class PlayerSummary(BaseModel):
     to display on the selection screen."""
 
     player_id: int
+    team_id: int
+    decade: int
     full_name: str
     positions: str
     games_played: int
