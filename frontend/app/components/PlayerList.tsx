@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Player } from "@/lib/api";
 import PlayerRow from "@/app/components/PlayerRow";
 import { teamBg, teamHeaderBg } from "@/lib/teams";
@@ -23,6 +24,12 @@ export default function PlayerList({
   placedPlayerIds,
   onPlayerClick,
 }: PlayerListProps) {
+  const [search, setSearch] = useState("");
+
+  const filteredPlayers = players.filter((player) =>
+    player.full_name.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <section>
         <div className="rounded-xl overflow-hidden border border-[#E5E5E5]">
@@ -30,15 +37,22 @@ export default function PlayerList({
         <div className="flex items-baseline gap-2 p-3" style={{ backgroundColor: teamHeaderBg(teamId) }}>
             <span className="text-lg text-[#EEEEEE] font-bold">{decadeDisplay}</span>
             <span className="text-lg text-[#EEEEEE] font-bold">{teamName}</span>
-            <span className="text-xs text-[#EEEEEE] ml-auto font-mono">
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search players..."
+              className= "ml-auto block w-48 px-3 py-2 text-sm border border-[#E5E5E5] rounded-md bg-white focus:outline-none focus:border-[#111111] transition-colors"
+            />
+            <span className="text-xs text-[#EEEEEE] ml-4 font-mono">
             {players.length} PLAYERS
             </span>
         </div>
 
         {/* Player rows */}
-        <div className="rounded-b-lg p-1" style={{ backgroundColor: teamBg(teamId) }}>
+        <div className="overflow-y-auto max-h-[500px] rounded-b-lg p-1" style={{ backgroundColor: teamBg(teamId) }}>
             <div className="space-y-0.5">
-                {players.map((player) => (
+                {filteredPlayers.map((player) => (
                 <PlayerRow
                     key={player.player_id}
                     player={player}

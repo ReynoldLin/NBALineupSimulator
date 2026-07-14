@@ -65,11 +65,11 @@ export default function SlotCard({
               {player.decade}s
             </span>
           </div>
-          <div className="flex-1 flex items-center justify-center">
+          <div className="flex-auto flex items-center justify-center overflow-hidden p-4">
               <img
                 src={player.headshot_url ?? "https://placehold.net/avatar.png"}
                 alt={player.full_name}
-                className="h-3/4 w-auto object-cover object-top"
+                className="h-full w-auto object-cover object-top"
               />
           </div>
         </>
