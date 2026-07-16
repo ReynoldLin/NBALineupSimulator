@@ -120,6 +120,7 @@ def build_decade_stats(db: Session) -> None:
             fg_pct=_safe_pct(row.total_fg, row.total_fga),
             fg3_pct=_safe_pct(row.total_fg3, row.total_fg3a),
             ft_pct=_safe_pct(row.total_ft, row.total_fta),
+            total_fg3a=row.total_fg3a,
 
             awards=row.awards or "",
         ))

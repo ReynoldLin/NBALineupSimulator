@@ -113,10 +113,17 @@ class PlayerTeamDecadeStats(Base):
     stl_per_game: Mapped[float] = mapped_column(Float, default=0.0)
     blk_per_game: Mapped[float] = mapped_column(Float, default=0.0)
     tov_per_game: Mapped[float] = mapped_column(Float, default=0.0)
+    total_fg3a: Mapped[int] = mapped_column(Integer, default=0)
 
     fg_pct: Mapped[float] = mapped_column(Float, default=0.0)
     fg3_pct: Mapped[float] = mapped_column(Float, default=0.0)
     ft_pct: Mapped[float] = mapped_column(Float, default=0.0)
+
+    scoring_rating: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    shooting_rating: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    playmaking_rating: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    defense_rating: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    rebounding_rating: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
 
 
 class Lineup(Base):

@@ -69,6 +69,11 @@ def _get_players_for_combo(
             fg_pct=stats.fg_pct,
             fg3_pct=stats.fg3_pct,
             ft_pct=stats.ft_pct,
+            scoring_rating=stats.scoring_rating,
+            shooting_rating=stats.shooting_rating,
+            playmaking_rating=stats.playmaking_rating,
+            defense_rating=stats.defense_rating,
+            rebounding_rating=stats.rebounding_rating,
             awards=stats.awards,
             headshot_url=player.headshot_url
         ))

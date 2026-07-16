@@ -32,6 +32,11 @@ class PlayerSummary(BaseModel):
     fg_pct: float
     fg3_pct: float
     ft_pct: float
+    scoring_rating: Optional[float] = None
+    shooting_rating: Optional[float] = None
+    playmaking_rating: Optional[float] = None
+    defense_rating: Optional[float] = None
+    rebounding_rating: Optional[float] = None
     awards: str
     headshot_url: Optional[str] = None
 
