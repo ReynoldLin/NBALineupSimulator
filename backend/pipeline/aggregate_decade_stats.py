@@ -49,9 +49,13 @@ AGGREGATE_SQL = text("""
         SUM(pts)            AS total_pts,
         SUM(trb)            AS total_trb,
         SUM(ast)            AS total_ast,
-        SUM(stl)            AS total_stl,
-        SUM(blk)            AS total_blk,
-        SUM(tov)            AS total_tov,
+        -- Only sum steals/blocks from seasons where they were recorded
+        SUM(CASE WHEN season_start_year >= 1973 THEN stl ELSE 0 END) AS total_stl,
+        SUM(CASE WHEN season_start_year >= 1973 THEN blk ELSE 0 END) AS total_blk,
+        -- Only count games from those seasons for per-game calculation
+        SUM(CASE WHEN season_start_year >= 1973 THEN games_played ELSE 0 END) AS stl_blk_games,
+        SUM(CASE WHEN season_start_year >= 1977 THEN tov ELSE 0 END) AS total_tov,
+        SUM(CASE WHEN season_start_year >= 1977 THEN games_played ELSE 0 END) AS tov_games,
 
         -- shooting totals (for percentage calculation)
         SUM(fg)             AS total_fg,
@@ -60,6 +64,8 @@ AGGREGATE_SQL = text("""
         SUM(fg3a)           AS total_fg3a,
         SUM(ft)             AS total_ft,
         SUM(fta)            AS total_fta,
+        SUM(dws)            AS total_dws,
+        COUNT(*)            AS season_count,
 
         -- awards: concatenate non-empty award strings across seasons,
         -- separated by " | " so each season's awards stay identifiable
@@ -113,14 +119,15 @@ def build_decade_stats(db: Session) -> None:
             pts_per_game=_safe_per_game(row.total_pts, games),
             reb_per_game=_safe_per_game(row.total_trb, games),
             ast_per_game=_safe_per_game(row.total_ast, games),
-            stl_per_game=_safe_per_game(row.total_stl, games),
-            blk_per_game=_safe_per_game(row.total_blk, games),
-            tov_per_game=_safe_per_game(row.total_tov, games),
+            stl_per_game=_safe_per_game(row.total_stl, row.stl_blk_games),
+            blk_per_game=_safe_per_game(row.total_blk, row.stl_blk_games),
+            tov_per_game=_safe_per_game(row.total_tov, row.tov_games),
 
             fg_pct=_safe_pct(row.total_fg, row.total_fga),
             fg3_pct=_safe_pct(row.total_fg3, row.total_fg3a),
             ft_pct=_safe_pct(row.total_ft, row.total_fta),
             total_fg3a=row.total_fg3a,
+            dws_per_season=_safe_per_game(row.total_dws, row.season_count),
 
             awards=row.awards or "",
         ))

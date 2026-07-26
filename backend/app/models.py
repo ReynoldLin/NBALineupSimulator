@@ -86,6 +86,8 @@ class PlayerSeasonStats(Base):
     tov: Mapped[int] = mapped_column(Integer, default=0)
     pts: Mapped[int] = mapped_column(Integer, default=0)
 
+    dws: Mapped[float] = mapped_column(Float, default=0.0)
+
     player: Mapped["Player"] = relationship(back_populates="season_stats")
     team: Mapped["Team"] = relationship(back_populates="season_stats")
 
@@ -114,6 +116,7 @@ class PlayerTeamDecadeStats(Base):
     blk_per_game: Mapped[float] = mapped_column(Float, default=0.0)
     tov_per_game: Mapped[float] = mapped_column(Float, default=0.0)
     total_fg3a: Mapped[int] = mapped_column(Integer, default=0)
+    dws_per_season: Mapped[float] = mapped_column(Float, default=0.0)
 
     fg_pct: Mapped[float] = mapped_column(Float, default=0.0)
     fg3_pct: Mapped[float] = mapped_column(Float, default=0.0)

@@ -17,6 +17,7 @@ from sqlalchemy import func
 from app.database import get_db
 from app.models import Player, PlayerTeamDecadeStats, Team
 from app.schemas import GradeRequest, GradeResponse, PlayerSummary, SpinResponse
+from app.calculate_wins import PlayerRatings, calculate_wins
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +48,7 @@ def _get_players_for_combo(
             PlayerTeamDecadeStats.team_id == team_id,
             PlayerTeamDecadeStats.decade == decade,
         )
-        .order_by(PlayerTeamDecadeStats.pts_per_game.desc())
+        .order_by(PlayerTeamDecadeStats.games_played.desc())
         .all()
     )
 
@@ -144,17 +145,48 @@ def get_players(team_id: int, decade: int, db: Session = Depends(get_db)):
 
 @router.post("/grade", response_model=GradeResponse)
 def grade_lineup(request: GradeRequest, db: Session = Depends(get_db)):
-    """Grade a completed 10-man lineup. Returns a score out of 82.
-    Placeholder until grading metrics are added to player_team_decade_stats."""
-
     if len(request.picks) != 10:
         raise HTTPException(
             status_code=400,
             detail=f"Lineup must have exactly 10 players, got {len(request.picks)}."
         )
 
-    # Placeholder grading logic — returns 82 until real metrics are built
-    score = 82.0
-    message = "82-0 — The greatest team ever assembled!"
+    player_ratings = []
 
-    return GradeResponse(score=score, message=message)
+    for pick in request.picks:
+        stats = (
+            db.query(PlayerTeamDecadeStats)
+            .filter(
+                PlayerTeamDecadeStats.player_id == pick.player_id,
+                PlayerTeamDecadeStats.team_id == pick.team_id,
+                PlayerTeamDecadeStats.decade == pick.decade,
+            )
+            .first()
+        )
+
+        if not stats:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Stats not found for player {pick.player_id} team {pick.team_id} decade {pick.decade}."
+            )
+
+        player = db.get(Player, pick.player_id)
+
+        player_ratings.append(PlayerRatings(
+            player_id=pick.player_id,
+            full_name=player.full_name if player else str(pick.player_id),
+            position=pick.position,
+            is_starter=pick.is_starter,
+            scoring=stats.scoring_rating or 25.0,
+            shooting=stats.shooting_rating or 25.0,
+            playmaking=stats.playmaking_rating or 25.0,
+            defense=stats.defense_rating or 25.0,
+            rebounding=stats.rebounding_rating or 25.0,
+        ))
+
+    result = calculate_wins(player_ratings)
+
+    return GradeResponse(
+        score=result.wins,
+        message=result.record,
+    )

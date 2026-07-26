@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { DndContext } from "@dnd-kit/core";
 
-import { Player, SpinResponse, spin as spinApi, getPlayers} from "@/lib/api";
+import { Player, SpinResponse, spin as spinApi, getPlayers, gradeLineup} from "@/lib/api";
 import LineupGrid from "@/app/components/LineupGrid";
 import PlayerList from "@/app/components/PlayerList";
 import SpinReveal from "./components/SpinReveal";
@@ -35,8 +35,8 @@ export default function Home() {
   const [currentSpin, setCurrentSpin] = useState<SpinResponse | null>(null);
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
   const [selectedSlotKey, setSelectedSlotKey] = useState<SlotKey | null>(null);
-  const [respinsTeamLeft, setRespinsTeamLeft] = useState(2);
-  const [respinsDecadeLeft, setRespinsDecadeLeft] = useState(2);
+  const [respinsTeamLeft, setRespinsTeamLeft] = useState(MAX_RESPINS);
+  const [respinsDecadeLeft, setRespinsDecadeLeft] = useState(MAX_RESPINS);
   const [hasRespunTeam, setHasRespunTeam] = useState(false);
   const [hasRespunDecade, setHasRespunDecade] = useState(false);
   const [isSpinning, setIsSpinning] = useState(false);
@@ -46,6 +46,7 @@ export default function Home() {
   const spinningWhat = useRef<"all" | "team" | "decade">("all");
   const [currentTeamId, setCurrentTeamId] = useState<number | null>(null);
   const [currentDecade, setCurrentDecade] = useState<number | null>(null);
+  const [record, setRecord] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -59,6 +60,26 @@ export default function Home() {
   // Count filled slots
   const filledSlots = Object.values(lineup).filter(Boolean).length;
   const isComplete = filledSlots === 10;
+
+  useEffect(() => {
+    if (isComplete) {
+      const picks = Object.entries(lineup)
+        .filter(([, player]) => player !== null)
+        .map(([slotKey, player]) => ({
+          player_id: player!.player_id,
+          team_id: player!.team_id,
+          decade: player!.decade,
+          position: slotKey.split("-")[1],
+          is_starter: slotKey.startsWith("starter"),
+        }));
+
+      gradeLineup(picks)
+        .then((result) => setRecord(result.message))
+        .catch(() => setRecord("??-??"));
+    } else {
+      setRecord(null);
+    }
+  }, [isComplete]);
 
   // ---------------------------------------------------------------------------
   // Handlers
@@ -177,6 +198,7 @@ export default function Home() {
 
   const handleSlotClick = useCallback(
   (slotKey: SlotKey) => {
+    if (isComplete) return;
     const slotPosition = slotKey.split("-")[1];
     const slotPlayer = lineup[slotKey];
 
@@ -251,6 +273,25 @@ export default function Home() {
   },
   [selectedPlayer, selectedSlotKey, lineup]
 );
+
+  const handleReset = useCallback(() => {
+    setLineup(EMPTY_LINEUP);
+    setCurrentSpin(null);
+    setSelectedPlayer(null);
+    setSelectedSlotKey(null);
+    setRespinsTeamLeft(MAX_RESPINS);
+    setRespinsDecadeLeft(MAX_RESPINS);
+    setHasRespunTeam(false);
+    setHasRespunDecade(false);
+    setCurrentTeamId(null);
+    setCurrentDecade(null);
+    setIsSpinning(false);
+    setRecord(null);
+    setError(null);
+    pendingSpinResult.current = null;
+    pendingTeamName.current = "";
+    pendingDecadeDisplay.current = "";
+  }, []);
 
   // ---------------------------------------------------------------------------
   // Render
@@ -331,13 +372,23 @@ export default function Home() {
                 />
               )}
 
-              {!currentSpin && !isSpinning && (
-                <div className="text-center py-16">
-                  <p className="text-sm text-[#AAAAAA]">
-                    Press Spin to get your team and decade
-                  </p>
+              {record && (
+                <div className="text-center py-6">
+                  <span className="text-[10px] font-bold tracking-widest text-[#888] uppercase">
+                    Season Record
+                  </span>
+                  <div className="text-6xl font-black tracking-tighter mt-1">
+                    {record}
+                  </div>
+                  <button
+                    onClick={handleReset}
+                    className="bg-[#111111] text-white text-sm font-semibold px-6 py-2 mt-6 rounded-md hover:bg-[#333] transition-colors"
+                  >
+                    Play Again
+                  </button>
                 </div>
               )}
+
             </div>
 
             <div data-player-area>

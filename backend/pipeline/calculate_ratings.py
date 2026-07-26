@@ -42,20 +42,17 @@ logger = logging.getLogger(__name__)
 RATING_MIN = 25.0
 RATING_MAX = 99.0
 
-# Games played weight — full weight at 82 games
-GAMES_WEIGHT_THRESHOLD = 82
+# Games played weight — full weight at 50 games
+GAMES_WEIGHT_THRESHOLD = 50
 
 # Award weights — used to boost relevant ratings
 AWARD_WEIGHTS = {
-    # Defense rating boosts
-    "DPOY": {1: 10, 2: 5, 3: 5, 4: 5, 5: 5},   # DPOY-1 = 10, DPOY-2+ = 5
-    "DEF":  {1: 8, 2: 5},                          # DEF1 = 8, DEF2 = 5
-
-    # Overall/scoring boosts (applied to scoring rating)
+    "DPOY": {1: 10, 2: 8, 3: 5},
+    "DEF":  {1: 5, 2: 3},
     "MVP":  {1: 10, 2: 5, 3: 5, 4: 5, 5: 5},
     "NBA":  {1: 7, 2: 5, 3: 3},
-    "AS":   {None: 3},                              # All-Star, no number
-    "ROY":  {None: 2},                              # Rookie of Year
+    "AS":   {None: 3},
+    "ROY":  {None: 2},
 }
 
 
@@ -97,11 +94,20 @@ def get_award_boost(awards_str: str, award_types: list[str]) -> float:
         if award_type not in parsed or award_type not in AWARD_WEIGHTS:
             continue
         weight_map = AWARD_WEIGHTS[award_type]
+        
+        # Find the max explicitly listed numeric rank
+        numeric_keys = [k for k in weight_map if k is not None]
+        max_explicit_rank = max(numeric_keys) if numeric_keys else None
+
         for rank in parsed[award_type]:
             if rank in weight_map:
                 total += weight_map[rank]
             elif None in weight_map:
+                # Award has no rank (e.g. AS, ROY)
                 total += weight_map[None]
+            elif max_explicit_rank is not None and rank is not None and rank > max_explicit_rank:
+                # Rank beyond explicitly listed ones gets a small default
+                total += 1.0
 
     return total
 
@@ -136,11 +142,12 @@ def percentile_rank(value: float, all_values: list[float]) -> float:
     below = sum(1 for v in all_values if v < value)
     return below / len(all_values)
 
-def curve_percentile(pct: float, k: float = 8, inflection: float = 0.99) -> float:
-    """Sigmoid curve normalised so percentile 1.0 always maps to 1.0."""
+def curve_percentile(pct: float, k: float = 12, inflection: float = 0.99) -> float:
+    """Sigmoid curve normalised so pct=0 maps to 0 and pct=1 maps to 1."""
     raw = 1 / (1 + math.exp(-k * (pct - inflection)))
-    max_raw = 1 / (1 + math.exp(-k * (1.0 - inflection)))  # value at pct=1.0
-    return raw / max_raw
+    min_raw = 1 / (1 + math.exp(-k * (0.0 - inflection)))  # value at pct=0
+    max_raw = 1 / (1 + math.exp(-k * (1.0 - inflection)))  # value at pct=1
+    return (raw - min_raw) / (max_raw - min_raw)
 
 # ---------------------------------------------------------------------------
 # Rating calculations
@@ -158,20 +165,25 @@ def compute_raw_scores(rows: list[PlayerTeamDecadeStats]) -> dict[int, dict[str,
 
         # Shooting: fg3_pct weighted by games, 0 if no 3PA
         if row.total_fg3a == 0:
-            shooting_raw = 0.0
+            if row.decade in (1960, 1970):
+                # Linear rescale: 50% FT -> 25% 3P equiv, 95% FT -> 45% 3P equiv
+                ft_pct = row.ft_pct
+                three_p_equivalent = 0.25 + (ft_pct - 0.50) / (0.90 - 0.50) * (0.45 - 0.25)
+                three_p_equivalent = max(0.25, min(0.45, three_p_equivalent))  # clamp to range
+                shooting_raw = three_p_equivalent * gw
+            else:
+                shooting_raw = 0.0
         else:
-            shooting_raw = row.fg3_pct * gw
+            shooting_raw = row.fg3_pct * math.log1p(row.total_fg3a/row.games_played) * gw
 
-        # Playmaking: ast_per_game - tov_per_game weighted by games
-        # Subtract TOV to penalise turnovers
-        playmaking_raw = max(row.ast_per_game - (row.tov_per_game * 0.5), 0) * gw
+        # Playmaking: ast_per_game weighted by games
+        playmaking_raw = row.ast_per_game * gw
 
         # Rebounding: reb_per_game weighted by games
         rebounding_raw = row.reb_per_game * gw
 
-        # Defense: stl + blk weighted by games + award boost
-        defense_raw = (row.stl_per_game + row.blk_per_game) * gw
-        defense_raw += get_award_boost(row.awards, ["DPOY", "DEF"]) * gw
+        award_boost = get_award_boost(row.awards, ["DPOY", "DEF"]) * gw
+        defense_raw = (row.dws_per_season + award_boost) * gw
 
         raw[row.id] = {
             "scoring": scoring_raw,
@@ -188,7 +200,7 @@ def scale_ratings(
     rows: list[PlayerTeamDecadeStats],
     raw: dict[int, dict[str, float]],
 ) -> dict[int, dict[str, float]]:
-    """Scale raw scores to RATING_MIN-RATING_MAX using percentile ranks."""
+
 
     rating_names = ["scoring", "shooting", "playmaking", "rebounding", "defense"]
     all_raw_values: dict[str, list[float]] = {r: [] for r in rating_names}
@@ -204,18 +216,10 @@ def scale_ratings(
         for name in rating_names:
             pct = percentile_rank(scores[name], all_raw_values[name])
 
-            # # Awards boost for scoring and playmaking (on top of percentile)
-            bonus = 0.0
-            # if name == "scoring":
-            #     bonus = get_award_boost(row.awards, ["MVP", "NBA", "AS", "ROY"])
-            #     # Scale bonus to a max of 10 percentile points
-            #     bonus = min(bonus / 30.0, 0.1)
-            # elif name == "playmaking":
-            #     bonus = get_award_boost(row.awards, ["AS"])
-            #     bonus = min(bonus / 30.0, 0.05)
-
-            final_pct = min(pct + bonus, 1.0)
-            curved = curve_percentile(min(pct + bonus, 1.0))
+            if name == "shooting":
+                curved = curve_percentile(min(pct, 1.0), k=6, inflection=0.90)
+            else:
+                curved = curve_percentile(min(pct, 1.0))
             rating = RATING_MIN + curved * (RATING_MAX - RATING_MIN)
             scaled[row.id][name] = round(rating, 1)
 

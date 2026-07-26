@@ -56,11 +56,21 @@ export default function PlayerRow({
 
       {/* Right: stats */}
       <div className="flex items-center gap-3 shrink-0 ml-4">
+        <Stat label="GP"  value={player.games_played} decimals={0}/>
         <Stat label="PTS" value={player.pts_per_game} />
         <Stat label="REB" value={player.reb_per_game} />
         <Stat label="AST" value={player.ast_per_game} />
         <Stat label="STL" value={player.stl_per_game} className="hidden sm:flex" />
         <Stat label="BLK" value={player.blk_per_game} className="hidden sm:flex" />
+        {/* Divider */}
+        <div className="w-px h-6 bg-[#E5E5E5] hidden sm:block" />
+
+        {/* Ratings */}
+        <Stat label="SCO" value={player.scoring_rating ?? 0} className="hidden sm:flex" />
+        <Stat label="SHO" value={player.shooting_rating ?? 0} className="hidden sm:flex" />
+        <Stat label="PMK" value={player.playmaking_rating ?? 0} className="hidden sm:flex" />
+        <Stat label="DEF" value={player.defense_rating ?? 0} className="hidden sm:flex" />
+        <Stat label="REB" value={player.rebounding_rating ?? 0} className="hidden sm:flex" />
       </div>
     </div>
   );
@@ -70,17 +80,19 @@ function Stat({
   label,
   value,
   className = "",
+  decimals = 1,
 }: {
   label: string;
   value: number;
   className?: string;
+  decimals?: number;
 }) {
   return (
     <div className={`flex flex-col items-center ${className}`}>
       <span className="text-[9px] font-bold tracking-wider">
         {label}
       </span>
-      <span className="text-xs font-mono font-semibold">{value.toFixed(1)}</span>
+      <span className="text-xs font-mono font-semibold">{value.toFixed(decimals)}</span>
     </div>
   );
 }
