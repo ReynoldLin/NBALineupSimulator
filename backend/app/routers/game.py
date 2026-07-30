@@ -189,4 +189,11 @@ def grade_lineup(request: GradeRequest, db: Session = Depends(get_db)):
     return GradeResponse(
         score=result.wins,
         message=result.record,
+        backcourt_score=result.backcourt_score,
+        frontcourt_score=result.frontcourt_score,
+        coverage_score=result.coverage_score,
+        bench_coverage_score=result.bench_coverage_score,
+        covered_categories=result.covered_categories,
+        starter_weaknesses=result.starter_weaknesses,
+        bench_covers=result.bench_covers,
     )

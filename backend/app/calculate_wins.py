@@ -13,6 +13,7 @@ All tunable constants are at the top of this file.
 
 from dataclasses import dataclass
 from typing import Optional
+import math
 
 # ---------------------------------------------------------------------------
 # Tunable constants
@@ -124,53 +125,60 @@ def is_pair_covered(p1: PlayerRatings, p2: PlayerRatings, category: str) -> bool
     """True if a pair covers a category (sum >= threshold)."""
     return pair_category_score(p1, p2, category) >= PAIR_COVERAGE_THRESHOLD
 
+def curve_wins(normalised: float, k: float = 12, inflection: float = 0.99) -> float:
+    """Apply sigmoid curve to normalised score (0-1).
+    Normalised so 0 always maps to 0 and 1 always maps to 1.
+    
+    k: steepness of curve — higher = harder to get top scores
+    inflection: point where curve transitions — higher = need to be more elite
+    """
+    raw = 1 / (1 + math.exp(-k * (normalised - inflection)))
+    min_raw = 1 / (1 + math.exp(-k * (0.0 - inflection)))
+    max_raw = 1 / (1 + math.exp(-k * (1.0 - inflection)))
+    return (raw - min_raw) / (max_raw - min_raw)
+
 # ---------------------------------------------------------------------------
 # Pair complementarity (backcourt PG+SG, bigs PF+C)
 # ---------------------------------------------------------------------------
- 
-def score_pair(p1: PlayerRatings, p2: PlayerRatings) -> tuple[float, list[str]]:
+
+def score_pair(
+    p1: PlayerRatings,
+    p2: PlayerRatings,
+    category_weights: dict[str, float] = CATEGORY_WEIGHTS,
+) -> tuple[float, list[str]]:
     """Score a position pair (backcourt or frontcourt).
-    
-    Returns:
-        - score: 0-100 representing how well the pair covers all 5 categories
-        - covered: list of category names that are covered
-    
-    A category is covered if the sum of both players' ratings >= PAIR_COVERAGE_THRESHOLD.
-    The score is the proportion of categories covered, scaled to 0-100,
-    plus a bonus for each category that significantly exceeds the threshold.
+        
+        Returns:
+            - score: 0-100 representing how well the pair covers all 5 categories
+            - covered: list of category names that are covered
+        
+        A category is covered if the sum of both players' ratings >= PAIR_COVERAGE_THRESHOLD.
+        The score is the proportion of categories covered, scaled to 0-100,
+        plus a bonus for each category that significantly exceeds the threshold.
     """
     covered = []
     total_score = 0.0
- 
-    for category, weight in CATEGORY_WEIGHTS.items():
+
+    for category, weight in category_weights.items():
         combined = pair_category_score(p1, p2, category)
- 
         if combined >= PAIR_COVERAGE_THRESHOLD:
             covered.append(category)
-            # Base coverage score
             category_score = 100.0
-            # Bonus for exceeding threshold — rewards dominant pairs
             excess = combined - PAIR_COVERAGE_THRESHOLD
-            bonus = min(excess * 0.1, 10.0)  # max 10 bonus points per category
+            bonus = min(excess * 0.1, 10.0)
             category_score += bonus
         else:
-            # Partial credit — proportional to how close they get to threshold
             category_score = (combined / PAIR_COVERAGE_THRESHOLD) * 100.0
- 
         total_score += category_score * weight
- 
+
     return total_score, covered
  
  
 def score_backcourt(pg: PlayerRatings, sg: PlayerRatings) -> tuple[float, list[str]]:
-    """Score the PG+SG backcourt pair."""
-    return score_pair(pg, sg)
- 
- 
+    return score_pair(pg, sg, BACKCOURT_CATEGORY_WEIGHTS)
+
 def score_frontcourt(pf: PlayerRatings, c: PlayerRatings) -> tuple[float, list[str]]:
-    """Score the PF+C bigs pair."""
-    return score_pair(pf, c)
- 
+    return score_pair(pf, c, FRONTCOURT_CATEGORY_WEIGHTS)
  
 def score_sf(sf: PlayerRatings) -> float:
     """SF contributes their weighted composite score directly, no pair check."""
@@ -275,15 +283,41 @@ SCORE_WEIGHTS = {
     "team_coverage":  0.20,  # starter group coverage
     "bench_coverage": 0.20,  # bench score + weakness coverage
 }
+
+BACKCOURT_CATEGORY_WEIGHTS = {
+    "scoring":    0.20,
+    "shooting":   0.25,
+    "playmaking": 0.25,
+    "defense":    0.25,
+    "rebounding": 0.05,
+}
+
+FRONTCOURT_CATEGORY_WEIGHTS = {
+    "scoring":    0.25,
+    "shooting":   0.05,
+    "playmaking": 0.15,
+    "defense":    0.25,
+    "rebounding": 0.30,
+}
  
 # Maximum possible raw score — used to normalise to 0-82
 # Theoretical max: each component scores 110-120
 MAX_POSSIBLE_SCORE = (
-    110.0 * SCORE_WEIGHTS["backcourt"] +
-    110.0 * SCORE_WEIGHTS["frontcourt"] +
+    100.0 * SCORE_WEIGHTS["backcourt"] +
+    100.0 * SCORE_WEIGHTS["frontcourt"] +
     99.0  * SCORE_WEIGHTS["sf"] +
     110.0 * SCORE_WEIGHTS["team_coverage"] +
-    120.0 * SCORE_WEIGHTS["bench_coverage"]
+    100.0 * SCORE_WEIGHTS["bench_coverage"]
+)
+
+# Minimum possible raw score — derived from all-25.0 lineup test
+# Backcourt=33.3, Frontcourt=33.3, SF=25.0, Coverage=41.7, Bench=41.7
+MIN_POSSIBLE_SCORE = (
+    33.3 * SCORE_WEIGHTS["backcourt"] +
+    33.3 * SCORE_WEIGHTS["frontcourt"] +
+    25.0 * SCORE_WEIGHTS["sf"] +
+    41.7 * SCORE_WEIGHTS["team_coverage"] +
+    41.7 * SCORE_WEIGHTS["bench_coverage"]
 )
  
  
@@ -332,9 +366,11 @@ def calculate_wins(players: list[PlayerRatings]) -> LineupResult:
     )
  
     # Normalise to 0-82
-    normalised = raw_score / MAX_POSSIBLE_SCORE
-    wins = int(round(normalised * 82))
+    normalised = (raw_score - MIN_POSSIBLE_SCORE) / (MAX_POSSIBLE_SCORE - MIN_POSSIBLE_SCORE)
+    curved = curve_wins(normalised)
+    wins = int(round(curved * 82))
     wins = max(0, min(82, wins))
+
     record = f"{wins}-{82 - wins}"
  
     return LineupResult(

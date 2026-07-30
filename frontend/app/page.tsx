@@ -7,6 +7,8 @@ import { Player, SpinResponse, spin as spinApi, getPlayers, gradeLineup} from "@
 import LineupGrid from "@/app/components/LineupGrid";
 import PlayerList from "@/app/components/PlayerList";
 import SpinReveal from "./components/SpinReveal";
+import { TEAM_NAMES, TEAM_COLORS } from "@/lib/teams";
+import LineupTable from "./components/LineupTable";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -15,6 +17,7 @@ import SpinReveal from "./components/SpinReveal";
 type SlotKey = string; // e.g. "starter-PG"
 
 const POSITIONS = ["PG", "SG", "SF", "PF", "C"];
+const DECADES = [1960, 1970, 1980, 1990, 2000, 2010, 2020];
 
 const EMPTY_LINEUP: Record<SlotKey, Player | null> = Object.fromEntries(
   ["starter", "bench"].flatMap((row) =>
@@ -48,6 +51,9 @@ export default function Home() {
   const [currentDecade, setCurrentDecade] = useState<number | null>(null);
   const [record, setRecord] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [debugMode, setDebugMode] = useState(false);
+  const [debugTeamId, setDebugTeamId] = useState<number | null>(null);
+  const [debugDecade, setDebugDecade] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // Set of player IDs that are already placed in a slot
@@ -74,12 +80,26 @@ export default function Home() {
         }));
 
       gradeLineup(picks)
-        .then((result) => setRecord(result.message))
+        .then((result) => {
+          console.log("Grade result:", result);
+          setRecord(result.message);
+        })
         .catch(() => setRecord("??-??"));
     } else {
       setRecord(null);
     }
   }, [isComplete]);
+
+  // Debug Mode
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && e.key === "D") {
+        setDebugMode((prev) => !prev);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   // ---------------------------------------------------------------------------
   // Handlers
@@ -293,6 +313,33 @@ export default function Home() {
     pendingDecadeDisplay.current = "";
   }, []);
 
+  // Debug Mode
+  const handleDebugSpin = useCallback(async () => {
+    if (!debugTeamId || !debugDecade) return;
+    setIsLoading(true);
+    setSelectedPlayer(null);
+    setCurrentSpin(null);
+    try {
+      const players = await getPlayers(debugTeamId, debugDecade);
+      const teamName = Object.values(TEAM_COLORS).length > 0
+        ? debugTeamId.toString()
+        : debugTeamId.toString();
+      setCurrentSpin({
+        team_id: debugTeamId,
+        team_name: TEAM_NAMES[debugTeamId] ?? debugTeamId.toString(),
+        decade: debugDecade,
+        decade_display: `${debugDecade}s`,
+        players,
+      });
+      setCurrentTeamId(debugTeamId);
+      setCurrentDecade(debugDecade);
+    } catch (e) {
+      setError("Debug spin failed.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [debugTeamId, debugDecade]);
+
   // ---------------------------------------------------------------------------
   // Render
   // ---------------------------------------------------------------------------
@@ -310,7 +357,7 @@ export default function Home() {
       >
         {/* Header */}
         <header className="border-b border-[#E5E5E5] px-4 py-3 flex items-center justify-between sticky top-0 bg-[#FAFAFA] z-10">
-          <span className="text-xl font-black tracking-tighter">Full 82-0</span>
+          <span className="text-xl font-black tracking-tighter">10 Man 82-0</span>
         </header>
 
         <main className="max-w-full mx-auto px-6 py-6">
@@ -345,6 +392,43 @@ export default function Home() {
                 </>
               )}
               </div>
+              
+              {/* Debug Mode */}
+              {debugMode && (
+              <div className="bg-yellow-50 border-b border-yellow-200 px-4 py-3 flex items-center gap-3 flex-wrap">
+                <span className="text-xs font-mono font-bold text-yellow-700">DEBUG</span>
+                
+                <select
+                  className="text-xs border border-yellow-300 rounded px-2 py-1 bg-white"
+                  value={debugTeamId ?? ""}
+                  onChange={(e) => setDebugTeamId(Number(e.target.value))}
+                >
+                  <option value="">Select team...</option>
+                  {Object.entries(TEAM_NAMES).map(([id, name]) => (
+                    <option key={id} value={id}>{name}</option>
+                  ))}
+                </select>
+
+                <select
+                  className="text-xs border border-yellow-300 rounded px-2 py-1 bg-white"
+                  value={debugDecade ?? ""}
+                  onChange={(e) => setDebugDecade(Number(e.target.value))}
+                >
+                  <option value="">Select decade...</option>
+                  {DECADES.map((d) => (
+                    <option key={d} value={d}>{d}s</option>
+                  ))}
+                </select>
+
+                <button
+                  onClick={handleDebugSpin}
+                  disabled={!debugTeamId || !debugDecade || isLoading}
+                  className="text-xs bg-yellow-500 text-white px-3 py-1 rounded font-semibold disabled:opacity-40"
+                >
+                  Load
+                </button>
+              </div>
+            )}
 
               {/* Player list */}
               {currentSpin && (
@@ -373,19 +457,22 @@ export default function Home() {
               )}
 
               {record && (
-                <div className="text-center py-6">
-                  <span className="text-[10px] font-bold tracking-widest text-[#888] uppercase">
-                    Season Record
-                  </span>
-                  <div className="text-6xl font-black tracking-tighter mt-1">
-                    {record}
+                <div className="space-y-6">
+                  <div className="text-center py-6">
+                    <span className="text-[10px] font-bold tracking-widest text-[#888] uppercase">
+                      Season Record
+                    </span>
+                    <div className="text-6xl font-black tracking-tighter mt-1">
+                      {record}
+                    </div>
+                    <button
+                      onClick={handleReset}
+                      className="bg-[#111111] text-white text-sm font-semibold px-6 py-2 mt-6 rounded-md hover:bg-[#333] transition-colors"
+                    >
+                      Play Again
+                    </button>
                   </div>
-                  <button
-                    onClick={handleReset}
-                    className="bg-[#111111] text-white text-sm font-semibold px-6 py-2 mt-6 rounded-md hover:bg-[#333] transition-colors"
-                  >
-                    Play Again
-                  </button>
+                  <LineupTable lineup={lineup} />
                 </div>
               )}
 
@@ -414,8 +501,6 @@ export default function Home() {
                 </div>
               )}
             </div>
-
-            
 
           </div>
         </main>

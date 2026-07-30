@@ -78,5 +78,12 @@ class GradeRequest(BaseModel):
 class GradeResponse(BaseModel):
     """Response for POST /game/grade."""
 
-    score: float                # 0-82, placeholder until grading logic is built
-    message: str                # e.g. "74-8 — Elite lineup!"
+    score: float
+    message: str
+    backcourt_score: float
+    frontcourt_score: float
+    coverage_score: float
+    bench_coverage_score: float
+    covered_categories: list[str]
+    starter_weaknesses: list[str]
+    bench_covers: list[str]
