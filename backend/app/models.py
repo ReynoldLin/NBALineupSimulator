@@ -20,6 +20,7 @@ from sqlalchemy import (
     Integer,
     String,
     UniqueConstraint,
+    Text
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -105,7 +106,7 @@ class PlayerTeamDecadeStats(Base):
     player_id: Mapped[int] = mapped_column(ForeignKey("players.player_id"), index=True)
     team_id: Mapped[int] = mapped_column(ForeignKey("teams.team_id"), index=True)
     decade: Mapped[int] = mapped_column(Integer, index=True)
-    awards: Mapped[str] = mapped_column(String(200), default="")  # combined awards across these seasons e.g. "AS | AS,NBA1"
+    awards: Mapped[str] = mapped_column(Text, nullable=True)  # combined awards across these seasons e.g. "AS | AS,NBA1"
 
     games_played: Mapped[int] = mapped_column(Integer, default=0)
 
