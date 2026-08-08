@@ -360,7 +360,7 @@ export default function Home() {
           <span className="text-xl font-black tracking-tighter">10 Man 82-0</span>
         </header>
 
-        <main className="max-w-full mx-auto px-6 py-6">
+        <main className="max-w-full mx-auto px-6 py-6 pb-32 2xl:pb-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
             {/* Players area */}
@@ -478,22 +478,15 @@ export default function Home() {
 
             </div>
 
-            <div data-player-area>
+            <div data-player-area
+                 className="fixed bottom-0 left-0 right-0 bg-[#FAFAFA] border-t border-[#E5E5E5] z-20 px-4 py-2 flex flex-col items-center 2xl:static 2xl:border-t-0 2xl:px-0 2xl:py-0 2xl:block">
               <LineupGrid
                 lineup={lineup}
                 selectedPlayer={selectedPlayer}
                 selectedSlotKey={selectedSlotKey}
                 onSlotClick={handleSlotClick}
               />
-              {/* Progress */}
-              <div className="flex items-center gap-2 p-2">
-                <div className="flex-1 h-px bg-[#E5E5E5]" />
-                <span className="text-[10px] font-mono text-[#AAAAAA]">
-                  {filledSlots}/10
-                </span>
-                <div className="flex-1 h-px bg-[#E5E5E5]" />
-              </div>
-
+              
               {/* Error */}
               {error && (
                 <div className="text-sm text-red-500 font-mono text-center">

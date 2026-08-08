@@ -14,6 +14,15 @@ type SlotCardProps = {
   onClick: () => void;
 };
 
+function getInitials(fullName: string) {
+  return fullName
+    .split(" ")
+    .filter(Boolean)
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase();
+}
+
 export default function SlotCard({
   id,
   position,
@@ -33,11 +42,11 @@ export default function SlotCard({
       style={{
         background: isEmpty
           ? positionBg(position)
-          : `linear-gradient(to bottom, ${TEAM_COLORS[player.team_id] ?? "#111111"} 0%, ${TEAM_COLORS[player.team_id] ?? "#111111"} 10%, #FFFFFF 0%)`,
+          : `linear-gradient(to bottom, ${TEAM_COLORS[player.team_id] ?? "#111111"} 0%, ${TEAM_COLORS[player.team_id] ?? "#111111"} 10%, #FFFFFF 10%)`,
         borderColor: isEmpty && isEligible ? POSITION_COLORS[position] : undefined,
       }}
         className={`
-        relative rounded-lg border h-60 flex flex-col overflow-hidden
+        relative rounded-lg border w-12 2xl:w-44 aspect-[5/7] flex flex-col overflow-hidden
         transition-all duration-150
         ${isEmpty && !isEligible ? "border-[#E5E5E5] cursor-pointer hover:opacity-80" : ""}
         ${isEmpty && isEligible ? "ring-2 ring-offset-1 cursor-pointer" : ""}
@@ -60,12 +69,26 @@ export default function SlotCard({
 
       {!isEmpty && (
         <>
-          <div className="text-center">
+        {/* Compact version */}
+          <div 
+            className="flex 2xl:hidden flex-1 flex-col items-center justify-center"
+            style={{ backgroundColor: TEAM_COLORS[player.team_id] ?? "#111111" }}
+          >
+            <span className="font-bold text-white text-lg">
+              {getInitials(player.full_name)}
+            </span>
+            <span className="text-white text-[9px] font-bold tracking-widest mt-1">
+              {position}
+            </span>
+          </div>
+
+        {/* Full version */}
+          <div className="hidden 2xl:block text-center">
             <span className="text-[10px] font-mono font-bold text-white">
               {player.decade}s
             </span>
           </div>
-          <div className="flex-auto flex items-center justify-center overflow-hidden p-4">
+          <div className="hidden 2xl:flex flex-auto items-center justify-center overflow-hidden p-4">
               <img
                 src={player.headshot_url ?? "https://placehold.net/avatar.png"}
                 alt={player.full_name}
@@ -83,7 +106,7 @@ export default function SlotCard({
           </span>
         </div>
       ) : (
-        <div className="flex-1 flex items-end p-2">
+        <div className="hidden 2xl:flex flex-1 items-end p-2">
           <span className="text-[10px] font-black tracking-widest w-5 shrink-0"
             style={{ color: POSITION_COLORS[position] ?? "#AAAAAA" }}>
             {position}

@@ -31,7 +31,7 @@ export default function LineupGrid({
           Starters
         </span>
       </div>
-      <div className="grid grid-cols-5 gap-2 mb-4">
+      <div className="grid grid-cols-5 gap-2 mb-4 overflow-x-auto min-w-max max-w-min">
         {POSITIONS.map((pos) => {
           const key = `starter-${pos}`;
           return (
@@ -54,7 +54,7 @@ export default function LineupGrid({
           Bench
         </span>
       </div>
-      <div className="grid grid-cols-5 gap-2">
+      <div className="grid grid-cols-5 gap-2 overflow-x-auto min-w-max max-w-min">
         {POSITIONS.map((pos) => {
           const key = `bench-${pos}`;
           return (
