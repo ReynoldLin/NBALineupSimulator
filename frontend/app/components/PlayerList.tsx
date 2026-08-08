@@ -34,19 +34,21 @@ export default function PlayerList({
     <section>
         <div className="rounded-xl overflow-hidden border border-[#E5E5E5]">
         {/* Spin result header */}
-        <div className="flex items-baseline gap-2 p-3" style={{ backgroundColor: teamHeaderBg(teamId) }}>
-            <span className="text-lg text-[#EEEEEE] font-bold">{decadeDisplay}</span>
-            <span className="text-lg text-[#EEEEEE] font-bold">{teamName}</span>
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search players..."
-              className= "ml-auto block w-48 px-3 py-2 text-sm border border-[#E5E5E5] rounded-md bg-white focus:outline-none focus:border-[#111111] transition-colors"
-            />
-            <span className="text-xs text-[#EEEEEE] ml-4 font-mono">
-            {players.length} PLAYERS
-            </span>
+        <div 
+          className="flex flex-col gap-2 p-3 2xl:flex-row 2xl:items-baseline" 
+          style={{ backgroundColor: teamHeaderBg(teamId) }}
+        >
+          <span className="text-lg text-[#EEEEEE] font-bold">{decadeDisplay} {teamName}</span>
+          <span className="text-xs text-[#EEEEEE] 2xl:ml-4 font-mono">
+          {players.length} PLAYERS
+          </span>
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search players..."
+            className= "w-full 2xl:ml-auto 2xl:w-48 px-3 py-2 text-sm border border-[#E5E5E5] rounded-md bg-white focus:outline-none focus:border-[#111111] transition-colors"
+          />
         </div>
 
         {/* Player rows */}
