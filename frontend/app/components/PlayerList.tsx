@@ -52,18 +52,21 @@ export default function PlayerList({
         </div>
 
         {/* Player rows */}
-        <div className="overflow-y-auto max-h-[500px] rounded-b-lg p-1" style={{ backgroundColor: teamBg(teamId) }}>
-            <div className="space-y-0.5">
-                {filteredPlayers.map((player) => (
-                <PlayerRow
-                    key={player.player_id}
-                    player={player}
-                    isSelected={selectedPlayer?.player_id === player.player_id}
-                    isPlaced={placedPlayerIds.has(player.player_id)}
-                    onClick={() => onPlayerClick(player)}
-                />
-                ))}
-            </div>
+        <div 
+          className="overflow-y-auto max-h-[500px] rounded-b-lg p-1" 
+          style={{ backgroundColor: teamBg(teamId) }}
+        >
+          <div className="space-y-0.5">
+              {filteredPlayers.map((player) => (
+              <PlayerRow
+                  key={player.player_id}
+                  player={player}
+                  isSelected={selectedPlayer?.player_id === player.player_id}
+                  isPlaced={placedPlayerIds.has(player.player_id)}
+                  onClick={() => onPlayerClick(player)}
+              />
+              ))}
+          </div>
         </div>
       </div>
     </section>

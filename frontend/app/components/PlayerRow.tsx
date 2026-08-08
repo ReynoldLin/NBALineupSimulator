@@ -20,7 +20,8 @@ export default function PlayerRow({
     <div
       onClick={isPlaced ? undefined : onClick}
       className={`
-        flex items-center justify-between px-3 py-2.5 rounded-md border
+        flex flex-col gap-2 px-3 py-2.5 rounded-md border
+        2xl:flex-row 2xl:items-center
         transition-all duration-150 select-none
         ${isPlaced
           ? "opacity-40 cursor-not-allowed border-transparent"
@@ -30,7 +31,7 @@ export default function PlayerRow({
         }
       `}
     >
-      {/* Left: position + name */}
+      {/* Left/Row 1: position + name */}
       <div className="flex items-center gap-3 min-w-0">
         <div className="flex items-center shrink-0 w-16">
             {player.positions.split("/").map((pos, i, arr) => (
@@ -53,24 +54,27 @@ export default function PlayerRow({
           </span>
         </div>
       </div>
+      
+      {/* Right group */}
+      <div className="flex flex-col gap-2 2xl:flex-row 2xl:items-center 2xl:gap-3 2xl:ml-auto">
+        {/* Right/Row 2: stats */}
+        <div className="flex items-center gap-3 flex-wrap">
+          <Stat label="GP"  value={player.games_played} decimals={0}/>
+          <Stat label="PTS" value={player.pts_per_game} />
+          <Stat label="REB" value={player.reb_per_game} />
+          <Stat label="AST" value={player.ast_per_game} />
+          <Stat label="STL" value={player.stl_per_game} />
+          <Stat label="BLK" value={player.blk_per_game} />
+        </div>
 
-      {/* Right: stats */}
-      <div className="flex items-center gap-3 shrink-0 ml-4">
-        <Stat label="GP"  value={player.games_played} decimals={0}/>
-        <Stat label="PTS" value={player.pts_per_game} />
-        <Stat label="REB" value={player.reb_per_game} />
-        <Stat label="AST" value={player.ast_per_game} />
-        <Stat label="STL" value={player.stl_per_game} className="hidden sm:flex" />
-        <Stat label="BLK" value={player.blk_per_game} className="hidden sm:flex" />
-        {/* Divider */}
-        <div className="w-px h-6 bg-[#E5E5E5] hidden sm:block" />
-
-        {/* Ratings */}
-        <Stat label="SCO" value={player.scoring_rating ?? 0} className="hidden sm:flex" />
-        <Stat label="SHO" value={player.shooting_rating ?? 0} className="hidden sm:flex" />
-        <Stat label="PMK" value={player.playmaking_rating ?? 0} className="hidden sm:flex" />
-        <Stat label="DEF" value={player.defense_rating ?? 0} className="hidden sm:flex" />
-        <Stat label="REB" value={player.rebounding_rating ?? 0} className="hidden sm:flex" />
+        <div className="flex items-center gap-3 flex-wrap">
+          {/* Ratings */}
+          <Stat label="SCO" value={player.scoring_rating ?? 0} />
+          <Stat label="SHO" value={player.shooting_rating ?? 0} />
+          <Stat label="PMK" value={player.playmaking_rating ?? 0} />
+          <Stat label="DEF" value={player.defense_rating ?? 0} />
+          <Stat label="REB" value={player.rebounding_rating ?? 0} />
+        </div>
       </div>
     </div>
   );
