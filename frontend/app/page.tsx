@@ -365,7 +365,7 @@ export default function Home() {
 
             {/* Players area */}
             <div className="space-y-4">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1.5 2xl:gap-3 flex-wrap">
               <button
                   onClick={handleSpin}
                   disabled={isLoading || isSpinning || isComplete || currentSpin !== null}
@@ -378,14 +378,14 @@ export default function Home() {
                   <button
                     onClick={handleRespinDecade}
                     disabled={isLoading || isSpinning || respinsDecadeLeft <= 0 || hasRespunDecade}
-                    className="bg-[#D1336F] text-white text-sm font-semibold px-4 py-2 rounded-md hover:bg-[#9D2351] transition-colors disabled:opacity-40"
+                    className="bg-[#D1336F] text-white text-sm font-semibold px-2.5 py-1.5 2xl:px-4 2xl:py-2 rounded-md hover:bg-[#9D2351] transition-colors disabled:opacity-40 whitespace-nowrap"
                   >
                     Respin Era ({respinsDecadeLeft})
                   </button>
                   <button
                     onClick={handleRespinTeam}
                     disabled={isLoading || isSpinning || respinsTeamLeft <= 0 || hasRespunTeam}
-                    className="bg-[#E68A42] text-white text-sm font-semibold px-4 py-2 rounded-md hover:bg-[#B95E19] transition-colors disabled:opacity-40"
+                    className="bg-[#E68A42] text-white text-sm font-semibold px-2.5 py-1.5 2xl:px-4 2xl:py-2 rounded-md hover:bg-[#B95E19] transition-colors disabled:opacity-40 whitespace-nowrap"
                   >
                     Respin Team ({respinsTeamLeft})
                   </button>
