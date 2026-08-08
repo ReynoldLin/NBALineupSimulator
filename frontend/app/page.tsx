@@ -369,7 +369,7 @@ export default function Home() {
               <button
                   onClick={handleSpin}
                   disabled={isLoading || isSpinning || isComplete || currentSpin !== null}
-                  className="bg-[#21B8D6] text-white text-sm font-semibold px-2.5 py-1.5 2xl:px-4 2xl:py-2 rounded-md hover:bg-[#9D2351] transition-colors disabled:opacity-40 whitespace-nowrap"
+                  className="bg-[#21B8D6] text-white text-sm font-semibold px-2.5 py-1.5 2xl:px-4 2xl:py-2 rounded-md hover:bg-[#178399] transition-colors disabled:opacity-40 whitespace-nowrap"
                 >
                   {isLoading ? "Spinning..." : "Spin"}
                 </button>
