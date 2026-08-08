@@ -40,20 +40,18 @@ export default function SlotCard({
       ref={setNodeRef}
       onClick={onClick}
       style={{
-        background: isEmpty
-          ? positionBg(position)
-          : `linear-gradient(to bottom, ${TEAM_COLORS[player.team_id] ?? "#111111"} 0%, ${TEAM_COLORS[player.team_id] ?? "#111111"} 10%, #FFFFFF 10%)`,
+        background: isEmpty ? positionBg(position): "#FFFFFF",
         borderColor: isEmpty && isEligible ? POSITION_COLORS[position] : undefined,
       }}
-        className={`
-        relative rounded-lg border w-12 2xl:w-44 aspect-[5/7] flex flex-col overflow-hidden
-        transition-all duration-150
-        ${isEmpty && !isEligible ? "border-[#E5E5E5] cursor-pointer hover:opacity-80" : ""}
-        ${isEmpty && isEligible ? "ring-2 ring-offset-1 cursor-pointer" : ""}
-        ${!isEmpty ? "border-transparent text-white" : ""}
-        ${isEligible ? "ring-2 ring-offset-1 ring-[#111111]" : ""}
-        ${isSelectedSlot ? "ring-2 ring-offset-1 ring-[#111111]" : ""}
-        `}
+      className={`
+      relative rounded-lg border w-12 2xl:w-44 aspect-[5/7] flex flex-col overflow-hidden
+      transition-all duration-150
+      ${isEmpty && !isEligible ? "border-[#E5E5E5] cursor-pointer hover:opacity-80" : ""}
+      ${isEmpty && isEligible ? "border-2 border-[#111111] cursor-pointer" : ""}
+      ${!isEmpty ? "text-white" : ""}
+      ${isEligible ? "border-2" : ""}
+      ${isSelectedSlot ? "border-4 border-[#111111]" : ""}
+      `}
     >
       {/* Diagonal stripe texture on empty non-eligible slots */}
       {isEmpty && !isEligible && (
@@ -83,7 +81,10 @@ export default function SlotCard({
           </div>
 
         {/* Full version */}
-          <div className="hidden 2xl:block text-center">
+          <div 
+            className="hidden 2xl:block text-center"
+            style={{ backgroundColor: TEAM_COLORS[player.team_id] ?? "#111111" }}
+          >
             <span className="text-[10px] font-mono font-bold text-white">
               {player.decade}s
             </span>
