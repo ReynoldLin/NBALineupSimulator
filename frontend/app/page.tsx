@@ -361,7 +361,7 @@ export default function Home() {
         </header>
 
         <main className="max-w-full mx-auto px-6 py-6 pb-72 2xl:pb-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 2xl:grid-cols-2 gap-8">
 
             {/* Players area */}
             <div className="space-y-4">
