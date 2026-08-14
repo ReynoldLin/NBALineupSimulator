@@ -45,12 +45,12 @@ export default function SlotCard({
       }}
       className={`
       relative rounded-lg border w-12 2xl:w-44 aspect-[5/7] flex flex-col overflow-hidden
-      transition-all duration-150
-      ${isEmpty && !isEligible ? "border-[#E5E5E5] cursor-pointer hover:opacity-80" : ""}
-      ${isEmpty && isEligible ? "border-2 border-[#111111] cursor-pointer" : ""}
+      transition-all duration-75
+      ${isEmpty && !isEligible ? "border-[#E5E5E5]" : ""}
+      ${isEmpty && isEligible ? "border-2 border-[#111111]" : ""}
       ${!isEmpty ? "text-white" : ""}
-      ${isEligible ? "border-2" : ""}
-      ${isSelectedSlot ? "border-4 border-[#111111]" : ""}
+      ${isEligible ? "border-2 border-[#111111] cursor-pointer"  : ""}
+      ${isSelectedSlot ? "border-2 border-[#111111]" : ""}
       `}
     >
       {/* Diagonal stripe texture on empty non-eligible slots */}
