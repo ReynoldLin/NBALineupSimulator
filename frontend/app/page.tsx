@@ -51,9 +51,9 @@ export default function Home() {
   const [currentDecade, setCurrentDecade] = useState<number | null>(null);
   const [record, setRecord] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [debugMode, setDebugMode] = useState(false);
-  const [debugTeamId, setDebugTeamId] = useState<number | null>(null);
-  const [debugDecade, setDebugDecade] = useState<number | null>(null);
+  // const [debugMode, setDebugMode] = useState(false);
+  // const [debugTeamId, setDebugTeamId] = useState<number | null>(null);
+  // const [debugDecade, setDebugDecade] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // Set of player IDs that are already placed in a slot
@@ -81,7 +81,7 @@ export default function Home() {
 
       gradeLineup(picks)
         .then((result) => {
-          console.log("Grade result:", result);
+          // console.log("Grade result:", result);
           setRecord(result.message);
         })
         .catch(() => setRecord("??-??"));
@@ -90,16 +90,16 @@ export default function Home() {
     }
   }, [isComplete]);
 
-  // Debug Mode
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.shiftKey && e.key === "D") {
-        setDebugMode((prev) => !prev);
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  // // Debug Mode
+  // useEffect(() => {
+  //   const handleKeyDown = (e: KeyboardEvent) => {
+  //     if (e.ctrlKey && e.shiftKey && e.key === "D") {
+  //       setDebugMode((prev) => !prev);
+  //     }
+  //   };
+  //   window.addEventListener("keydown", handleKeyDown);
+  //   return () => window.removeEventListener("keydown", handleKeyDown);
+  // }, []);
 
   // ---------------------------------------------------------------------------
   // Handlers
@@ -313,32 +313,32 @@ export default function Home() {
     pendingDecadeDisplay.current = "";
   }, []);
 
-  // Debug Mode
-  const handleDebugSpin = useCallback(async () => {
-    if (!debugTeamId || !debugDecade) return;
-    setIsLoading(true);
-    setSelectedPlayer(null);
-    setCurrentSpin(null);
-    try {
-      const players = await getPlayers(debugTeamId, debugDecade);
-      const teamName = Object.values(TEAM_COLORS).length > 0
-        ? debugTeamId.toString()
-        : debugTeamId.toString();
-      setCurrentSpin({
-        team_id: debugTeamId,
-        team_name: TEAM_NAMES[debugTeamId] ?? debugTeamId.toString(),
-        decade: debugDecade,
-        decade_display: `${debugDecade}s`,
-        players,
-      });
-      setCurrentTeamId(debugTeamId);
-      setCurrentDecade(debugDecade);
-    } catch (e) {
-      setError("Debug spin failed.");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [debugTeamId, debugDecade]);
+  // // Debug Mode
+  // const handleDebugSpin = useCallback(async () => {
+  //   if (!debugTeamId || !debugDecade) return;
+  //   setIsLoading(true);
+  //   setSelectedPlayer(null);
+  //   setCurrentSpin(null);
+  //   try {
+  //     const players = await getPlayers(debugTeamId, debugDecade);
+  //     const teamName = Object.values(TEAM_COLORS).length > 0
+  //       ? debugTeamId.toString()
+  //       : debugTeamId.toString();
+  //     setCurrentSpin({
+  //       team_id: debugTeamId,
+  //       team_name: TEAM_NAMES[debugTeamId] ?? debugTeamId.toString(),
+  //       decade: debugDecade,
+  //       decade_display: `${debugDecade}s`,
+  //       players,
+  //     });
+  //     setCurrentTeamId(debugTeamId);
+  //     setCurrentDecade(debugDecade);
+  //   } catch (e) {
+  //     setError("Debug spin failed.");
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // }, [debugTeamId, debugDecade]);
 
   // ---------------------------------------------------------------------------
   // Render
@@ -393,8 +393,8 @@ export default function Home() {
               )}
               </div>
               
-              {/* Debug Mode */}
-              {debugMode && (
+              
+              {/* {debugMode && (
               <div className="bg-yellow-50 border-b border-yellow-200 px-4 py-3 flex items-center gap-3 flex-wrap">
                 <span className="text-xs font-mono font-bold text-yellow-700">DEBUG</span>
                 
@@ -428,7 +428,7 @@ export default function Home() {
                   Load
                 </button>
               </div>
-            )}
+            )} */}
 
               {/* Player list */}
               {currentSpin && (
