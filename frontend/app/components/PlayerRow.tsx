@@ -33,6 +33,13 @@ export default function PlayerRow({
     >
       {/* Left/Row 1: position + name */}
       <div className="flex items-center gap-3 min-w-0">
+        <div>
+          <img
+            src={player.headshot_url ?? "https://placehold.net/avatar.png"}
+            alt={player.full_name}
+            className="h-18 w-18 object-contain object-top"
+          />
+        </div>
         <div className="min-w-0">
           <span className="text-sm font-semibold truncate block">
             {player.full_name}

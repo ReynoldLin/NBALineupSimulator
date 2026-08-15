@@ -93,7 +93,7 @@ export default function SlotCard({
               <img
                 src={player.headshot_url ?? "https://placehold.net/avatar.png"}
                 alt={player.full_name}
-                className="h-36 w-auto object-cover object-top"
+                className="h-36 w-auto object-contain object-top"
               />
           </div>
         </>

@@ -45,16 +45,16 @@ export default function LineupTable({ lineup }: LineupTableProps) {
           <tr className="border-b border-[#E5E5E5]">
             <th className="text-left py-2 px-3 font-bold text-[#888] tracking-widest text-[10px] w-10">POS</th>
             <th className="text-left py-2 px-3 font-bold text-[#888] tracking-widest text-[10px]">PLAYER</th>
-            <th className="text-left py-2 px-3 font-bold text-[#888] tracking-widest text-[10px]">DEC</th>
+            <th className="text-left py-2 px-3 font-bold text-[#888] tracking-widest text-[10px]">ERA</th>
             <th className="text-left py-2 px-3 font-bold text-[#888] tracking-widest text-[10px]">TEAM</th>
             {STAT_COLS.map((col) => (
-              <th key={col.key} className="text-right py-2 px-3 font-bold text-[#888] tracking-widest text-[10px]">
+              <th key={col.key} className="text-center py-2 px-3 font-bold text-[#888] tracking-widest text-[10px]">
                 {col.label}
               </th>
             ))}
             <th className="w-px bg-[#E5E5E5]" />
             {RATING_COLS.map((col) => (
-              <th key={col.key} className="text-right py-2 px-3 font-bold text-[#888] tracking-widest text-[10px]">
+              <th key={col.key} className="text-center py-2 px-3 font-bold text-[#888] tracking-widest text-[10px]">
                 {col.label}
               </th>
             ))}
@@ -106,13 +106,13 @@ function PlayerRow({ pos, player }: { pos: string; player: Player | null }) {
         {TEAM_NAMES[player.team_id] ?? player.team_id}
       </td>
       {STAT_COLS.map((col) => (
-        <td key={col.key} className="py-2 px-3 text-right font-mono font-bold text-[#111]">
+        <td key={col.key} className="py-2 px-3 text-center font-mono font-bold text-[#111]">
           {((player as any)[col.key] ?? 0).toFixed(1)}
         </td>
       ))}
       <td className="w-px bg-[#E5E5E5]" />
       {RATING_COLS.map((col) => (
-        <td key={col.key} className="py-2 px-3 text-right font-mono font-bold text-[#111]">
+        <td key={col.key} className="py-2 px-3 text-center font-mono font-bold text-[#111]">
           {((player as any)[col.key] ?? 0).toFixed(1)}
         </td>
       ))}
