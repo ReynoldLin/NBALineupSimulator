@@ -14,7 +14,7 @@ const atkinsonMono = Atkinson_Hyperlegible_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "82-0",
+  title: "10 Man 82-0",
   description: "Build the greatest 10-man NBA lineup of all time.",
 };
 

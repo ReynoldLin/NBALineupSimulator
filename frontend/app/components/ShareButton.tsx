@@ -88,7 +88,7 @@ export default function ShareButton({ record, lineup }: ShareButtonProps) {
         className="bg-[#21B8D6] text-white text-sm font-semibold px-6 py-2 rounded-md hover:bg-[#178399] transition-colors flex items-center justify-center gap-2"
       >
         <img 
-          src={"https://img.icons8.com/?size=100&id=83213&format=png&color=FFFFFF"}
+          src={`/shareIcon.png`}
           alt=""
           className="w-4 h-4"
         />

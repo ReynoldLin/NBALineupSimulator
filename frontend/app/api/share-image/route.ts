@@ -109,10 +109,35 @@ const BANNER_H = 26;
 let fontsRegistered = false;
 function ensureFonts() {
   if (fontsRegistered) return;
-  const boldPath = path.join(process.cwd(), "public", "fonts", "Inter-Bold.ttf");
-  const regularPath = path.join(process.cwd(), "public", "fonts", "Inter-Regular.ttf");
-  if (fs.existsSync(boldPath)) GlobalFonts.registerFromPath(boldPath, "Inter-Bold");
-  if (fs.existsSync(regularPath)) GlobalFonts.registerFromPath(regularPath, "Inter");
+  const regularPath = path.join(process.cwd(), "public", "fonts", "AtkinsonHyperlegible-Regular.ttf");
+  const boldPath = path.join(process.cwd(), "public", "fonts", "AtkinsonHyperlegible-Bold.ttf");
+  const monoPath = path.join(process.cwd(), "public", "fonts", "AtkinsonHyperlegibleMono-Regular.ttf");
+  const monoBoldPath = path.join(process.cwd(), "public", "fonts", "AtkinsonHyperlegibleMono-Bold.ttf");
+
+  if (fs.existsSync(regularPath)) {
+    GlobalFonts.registerFromPath(regularPath, "Atkinson Hyperlegible");
+  } else {
+    console.warn("Missing font file:", regularPath);
+  }
+
+  if (fs.existsSync(boldPath)) {
+    GlobalFonts.registerFromPath(boldPath, "Atkinson Hyperlegible Bold");
+  } else {
+    console.warn("Missing font file:", boldPath);
+  }
+
+  if (fs.existsSync(monoPath)) {
+    GlobalFonts.registerFromPath(monoPath, "Atkinson Hyperlegible Mono");
+  } else {
+    console.warn("Missing font file:", monoPath);
+  }
+
+  if (fs.existsSync(monoBoldPath)) {
+    GlobalFonts.registerFromPath(monoBoldPath, "Atkinson Hyperlegible Mono Bold");
+  } else {
+    console.warn("Missing font file:", monoBoldPath);
+  }
+
   fontsRegistered = true;
 }
 
@@ -202,7 +227,7 @@ async function drawCard(ctx: any, x: number, y: number, position: string, player
     ctx.fillStyle = teamColor;
     ctx.fillRect(x, y, CARD_W, BANNER_H);
     ctx.fillStyle = "#FFFFFF";
-    ctx.font = "bold 11px Inter-Bold";
+    ctx.font = "11px 'Atkinson Hyperlegible Mono Bold'";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(`${player.decade}s`, x + CARD_W / 2, y + BANNER_H / 2 + 1);
@@ -235,7 +260,7 @@ async function drawCard(ctx: any, x: number, y: number, position: string, player
     ctx.textAlign = "left";
     ctx.textBaseline = "alphabetic";
     ctx.fillStyle = POSITION_COLORS[position] ?? "#AAAAAA";
-    ctx.font = "bold 10px Inter-Bold";
+    ctx.font = "10px 'Atkinson Hyperlegible Bold'";
     ctx.fillText(position, x + 8, footerY + 14);
 
     const logo = await loadLogo(player.team_id);
@@ -243,21 +268,31 @@ async function drawCard(ctx: any, x: number, y: number, position: string, player
     const nameMaxWidth = CARD_W - 8 - 20 /* pos */ - (logo ? logoSize + 8 : 8) - 8;
 
     ctx.fillStyle = "#111111";
-    ctx.font = "bold 12px Inter-Bold";
+    ctx.font = "12px 'Atkinson Hyperlegible Bold'";
     const name = truncateToWidth(ctx, player.full_name, nameMaxWidth);
     ctx.textAlign = "center";
     ctx.fillText(name, x + 28 + nameMaxWidth / 2, footerY + 14);
 
     if (logo) {
-      const logoY = footerY + 16 - logoSize;
-      ctx.drawImage(logo, x + CARD_W - logoSize - 8, logoY, logoSize, logoSize);
+      const logoScale = Math.min(logoSize / logo.width, logoSize / logo.height);
+      const logoDw = logo.width * logoScale;
+      const logoDh = logo.height * logoScale;
+      const logoBoxX = x + CARD_W - logoSize - 8;
+      const logoBoxY = footerY + 14 - logoSize;
+      ctx.drawImage(
+        logo,
+        logoBoxX + (logoSize - logoDw) / 2,
+        logoBoxY + (logoSize - logoDh) / 2,
+        logoDw,
+        logoDh
+      );
     }
   } else {
     // Empty slot
     ctx.fillStyle = "#F5F5F5";
     ctx.fillRect(x, y, CARD_W, CARD_H);
     ctx.fillStyle = POSITION_COLORS[position] ?? "#AAAAAA";
-    ctx.font = "bold 11px Inter-Bold";
+    ctx.font = "11px 'Atkinson Hyperlegible Bold'";
     ctx.textAlign = "left";
     ctx.textBaseline = "alphabetic";
     ctx.fillText(position, x + 8, y + CARD_H - 12);
@@ -283,7 +318,7 @@ async function drawRow(ctx: any, rowY: number, rowPrefix: string, lineup: Record
 
 function drawSectionLabel(ctx: any, text: string, y: number) {
   ctx.fillStyle = "#888888";
-  ctx.font = "bold 12px Inter-Bold";
+  ctx.font = "12px 'Atkinson Hyperlegible Bold'";
   ctx.textAlign = "left";
   ctx.textBaseline = "alphabetic";
   // letter-spacing isn't native to canvas; fake it for the all-caps labels
@@ -318,7 +353,7 @@ export async function POST(req: NextRequest) {
 
     // Header: record
     ctx.fillStyle = "#111111";
-    ctx.font = "bold 28px Inter-Bold";
+    ctx.font = "28px 'Atkinson Hyperlegible Bold'";
     ctx.textAlign = "left";
     ctx.textBaseline = "alphabetic";
     ctx.fillText(record ?? "", MARGIN, MARGIN + 30);
