@@ -15,7 +15,7 @@ const atkinsonMono = Atkinson_Hyperlegible_Mono({
 
 export const metadata: Metadata = {
   title: "10 Man 82-0",
-  description: "Build the greatest 10-man NBA lineup of all time.",
+  description: "Can you go 82-0 by building the greatest 10 man NBA lineup?",
 };
 
 export default function RootLayout({
