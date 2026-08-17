@@ -9,6 +9,7 @@ import PlayerList from "@/app/components/PlayerList";
 import SpinReveal from "./components/SpinReveal";
 import { TEAM_NAMES, TEAM_COLORS } from "@/lib/teams";
 import LineupTable from "./components/LineupTable";
+import ShareButton from "./components/ShareButton";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -465,12 +466,18 @@ export default function Home() {
                     <div className="text-6xl font-black tracking-tighter mt-1">
                       {record}
                     </div>
-                    <button
-                      onClick={handleReset}
-                      className="bg-[#111111] text-white text-sm font-semibold px-6 py-2 mt-6 rounded-md hover:bg-[#333] transition-colors"
-                    >
-                      Play Again
-                    </button>
+                    <div className="px-6 mt-6 flex items-center justify-center gap-1.5 2xl:gap-3">
+                      <button
+                        onClick={handleReset}
+                        className="bg-[#111111] text-white text-sm font-semibold px-6 py-2 rounded-md hover:bg-[#333] transition-colors"
+                      >
+                        Play Again
+                      </button>
+                      <ShareButton
+                        record={record}
+                        lineup={lineup}
+                      />
+                    </div>
                   </div>
                   <LineupTable lineup={lineup} />
                 </div>
