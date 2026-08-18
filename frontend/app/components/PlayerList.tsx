@@ -53,7 +53,7 @@ export default function PlayerList({
 
         {/* Player rows */}
         <div 
-          className="overflow-y-auto max-h-[500px] rounded-b-lg p-1" 
+          className="overflow-auto max-h-[500px] rounded-b-lg p-1" 
           style={{ backgroundColor: teamBg(teamId) }}
         >
           <div className="space-y-0.5">

@@ -33,15 +33,15 @@ export default function PlayerRow({
     >
       {/* Left/Row 1: position + name */}
       <div className="flex items-center gap-3 min-w-0">
-        <div>
+        <div className="shrink-0">
           <img
             src={player.headshot_url ?? "https://placehold.net/avatar.png"}
             alt={player.full_name}
             className="h-18 w-18 object-contain object-top"
           />
         </div>
-        <div className="min-w-0">
-          <span className="text-sm font-semibold truncate block">
+        <div>
+          <span className="text-sm font-semibold whitespace-nowrap">
             {player.full_name}
           </span>
         </div>
@@ -65,7 +65,7 @@ export default function PlayerRow({
       {/* Right group */}
       <div className="flex flex-col gap-2 2xl:flex-row 2xl:items-center 2xl:gap-3 2xl:ml-auto">
         {/* Right/Row 2: stats */}
-        <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex items-center gap-3 flex-wrap 2xl:flex-nowrap">
           <Stat label="GP"  value={player.games_played} decimals={0}/>
           <Stat label="PTS" value={player.pts_per_game} />
           <Stat label="REB" value={player.reb_per_game} />
@@ -74,7 +74,7 @@ export default function PlayerRow({
           <Stat label="BLK" value={player.blk_per_game} />
         </div>
 
-        <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex items-center gap-3 flex-wrap 2xl:flex-nowrap">
           {/* Ratings */}
           <Stat label="SCO" value={player.scoring_rating ?? 0} />
           <Stat label="SHO" value={player.shooting_rating ?? 0} />
