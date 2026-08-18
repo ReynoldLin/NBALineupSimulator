@@ -25,50 +25,54 @@ export default function LineupGrid({
 
   return (
     <section>
-      {/* Starters */}
-      <div className="mb-2">
-        <span className="text-[10px] font-bold tracking-widest text-[#888] uppercase">
-          Starters
-        </span>
-      </div>
-      <div className="grid grid-cols-5 gap-2 mb-4 overflow-x-auto min-w-max max-w-min">
-        {POSITIONS.map((pos) => {
-          const key = `starter-${pos}`;
-          return (
-            <SlotCard
-              key={key}
-              id={key}
-              position={pos}
-              player={lineup[key]}
-              isEligible={eligibleSlots.has(key)}
-              isSelectedSlot={selectedSlotKey === key}
-              onClick={() => onSlotClick(key)}
-            />
-          );
-        })}
-      </div>
+      <div className="overflow-x-auto">
+        <div className="w-max">
+          {/* Starters */}
+          <div className="mb-2">
+            <span className="text-[10px] font-bold tracking-widest text-[#888] uppercase">
+              Starters
+            </span>
+          </div>
+          <div className="grid grid-cols-5 gap-2 mb-4">
+            {POSITIONS.map((pos) => {
+              const key = `starter-${pos}`;
+              return (
+                <SlotCard
+                  key={key}
+                  id={key}
+                  position={pos}
+                  player={lineup[key]}
+                  isEligible={eligibleSlots.has(key)}
+                  isSelectedSlot={selectedSlotKey === key}
+                  onClick={() => onSlotClick(key)}
+                />
+              );
+            })}
+          </div>
 
-      {/* Bench */}
-      <div className="mb-2">
-        <span className="text-[10px] font-bold tracking-widest text-[#888] uppercase">
-          Bench
-        </span>
-      </div>
-      <div className="grid grid-cols-5 gap-2 overflow-x-auto min-w-max max-w-min">
-        {POSITIONS.map((pos) => {
-          const key = `bench-${pos}`;
-          return (
-            <SlotCard
-              key={key}
-              id={key}
-              position={pos}
-              player={lineup[key]}
-              isEligible={eligibleSlots.has(key)}
-              isSelectedSlot={selectedSlotKey === key}
-              onClick={() => onSlotClick(key)}
-            />
-          );
-        })}
+          {/* Bench */}
+          <div className="mb-2">
+            <span className="text-[10px] font-bold tracking-widest text-[#888] uppercase">
+              Bench
+            </span>
+          </div>
+          <div className="grid grid-cols-5 gap-2">
+            {POSITIONS.map((pos) => {
+              const key = `bench-${pos}`;
+              return (
+                <SlotCard
+                  key={key}
+                  id={key}
+                  position={pos}
+                  player={lineup[key]}
+                  isEligible={eligibleSlots.has(key)}
+                  isSelectedSlot={selectedSlotKey === key}
+                  onClick={() => onSlotClick(key)}
+                />
+              );
+            })}
+          </div>
+        </div>
       </div>
     </section>
   );
