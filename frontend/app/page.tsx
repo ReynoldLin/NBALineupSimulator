@@ -358,7 +358,14 @@ export default function Home() {
       >
         {/* Header */}
         <header className="border-b border-[#E5E5E5] px-4 py-3 flex items-center justify-between sticky top-0 bg-[#FAFAFA] z-10">
-          <span className="text-xl font-black tracking-tighter">10 Man 82-0</span>
+          <div className="flex items-center gap-2">
+            <img
+              src="/logo.png"
+              alt="10 Man 82-0"
+              className="w-6 h-6"
+            />
+            <span className="text-xl font-black tracking-tighter">10 Man 82-0</span>
+          </div>
         </header>
 
         <main className="max-w-full mx-auto px-6 py-6 pb-72 2xl:pb-6">
