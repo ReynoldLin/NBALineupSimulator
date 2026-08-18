@@ -351,14 +351,21 @@ export async function POST(req: NextRequest) {
     ctx.fillStyle = "#FAFAFA";
     ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
 
-    // Header: record
-    ctx.fillStyle = "#111111";
-    ctx.font = "28px 'Atkinson Hyperlegible Bold'";
+    // Website
+    ctx.fillStyle = "#21B8D6";
+    ctx.font = "18px 'Atkinson Hyperlegible Bold'";
     ctx.textAlign = "left";
     ctx.textBaseline = "alphabetic";
-    ctx.fillText(record ?? "", MARGIN, MARGIN + 30);
+    ctx.fillText("10man82-0.com", MARGIN, MARGIN + 12);
 
-    let cursorY = MARGIN + HEADER_H;
+    // Record
+    ctx.fillStyle = "#111111";
+    ctx.font = "36px 'Atkinson Hyperlegible Bold'";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
+    ctx.fillText(record ?? "", MARGIN, MARGIN + 54);
+
+    let cursorY = MARGIN + HEADER_H + 12;
 
     drawSectionLabel(ctx, "STARTERS", cursorY + 16);
     cursorY += LABEL_H;

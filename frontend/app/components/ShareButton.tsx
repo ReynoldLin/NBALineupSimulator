@@ -67,7 +67,7 @@ export default function ShareButton({ record, lineup }: ShareButtonProps) {
   };
 
   const copyLabel = {
-    idle: "Copy to clipboard",
+    idle: "Copy image",
     copying: "Copying…",
     copied: "Copied ✓",
     unsupported: "Not supported on this browser",
